@@ -8,6 +8,7 @@
 import Foundation
 import HealthKit
 import DevTools
+import SwiftUI
 
 extension ContentView {
     @Observable
@@ -20,6 +21,30 @@ extension ContentView {
         var dateFrom = Date()
         var dateTo = Date()
         var workouts: [HKWorkout] = []
+        
+        var dateFromBinding: Binding<Date> {
+            Binding<Date> {
+                UserDefaults.standard.object(forKey: "dateFrom") as? Date ?? Date()
+            } set: { newDate in
+                self.dateFrom = newDate
+                
+                UserDefaults.standard.set(newDate, forKey: "dateFrom")
+            }
+        }
+        
+        var dateToBinding: Binding<Date> {
+            Binding<Date> {
+                UserDefaults.standard.object(forKey: "dateTo") as? Date ?? Date()
+            } set: { newDate in
+                self.dateTo = newDate
+                
+                UserDefaults.standard.set(newDate, forKey: "dateTo")
+            }
+        }
+        
+        private var queryTimeRangePredicate: NSPredicate {
+            HKQuery.predicateForSamples(withStart: dateFrom, end: dateTo, options: [])
+        }
         
         init() {
             guard HKHealthStore.isHealthDataAvailable() else {
@@ -42,51 +67,33 @@ extension ContentView {
             }
         }
         
-        func readHeartRate(){
-            let quantityType  = HKObjectType.quantityType(forIdentifier: .heartRate)!
+        func readHeartRate() {
+            let sampleType  = HKObjectType.quantityType(forIdentifier: .heartRate)!
             let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
             
-           
-            
-            let sampleQuery = HKSampleQuery.init(sampleType: quantityType,
-                                                 predicate: get24hPredicate(),
+            let sampleQuery = HKSampleQuery.init(sampleType: sampleType,
+                                                 predicate: queryTimeRangePredicate,
                                                  limit: HKObjectQueryNoLimit,
                                                  sortDescriptors: [sortDescriptor],
-                                                 resultsHandler: queryResultHandler(_:_:_:))
+                                                 resultsHandler: handleHeartRateQueryResult(_:_:_:))
             
             self.healthStore?.execute(sampleQuery)
         }
         
-        func readWorkouts(){
-            let workoutType = HKObjectType.workoutType()
+        func readWorkouts() {
+            let sampleType = HKObjectType.workoutType()
             let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
-            let predicate = get24hPredicate()
             
-            let query = HKSampleQuery(sampleType: workoutType,
-                                      predicate: predicate,
+            let query = HKSampleQuery(sampleType: sampleType,
+                                      predicate: queryTimeRangePredicate,
                                       limit: HKObjectQueryNoLimit,
-                                      sortDescriptors: [sortDescriptor]) { [weak self] _, results, error in
-                guard let self else { return }
-                
-                if let error {
-                    print("readWorkouts error:", error)
-                    return
-                }
-                
-                guard let workouts = results as? [HKWorkout] else {
-                    print("readWorkouts: results cast failed or nil")
-                    return
-                }
-                
-                DispatchQueue.main.async {
-                    self.workouts = workouts
-                }
-            }
+                                      sortDescriptors: [sortDescriptor],
+                                      resultsHandler: handleWorkoutsQueryResult(_:_:_:))
             
             healthStore?.execute(query)
         }
         
-        private func queryResultHandler(_ query: HKSampleQuery, _ results: [HKSample]?, _ error: (any Error)?) {
+        private func handleHeartRateQueryResult(_ query: HKSampleQuery, _ results: [HKSample]?, _ error: (any Error)?) {
             guard let samples = results as? [HKQuantitySample] else {
                 print(error!)
                 return
@@ -141,10 +148,20 @@ extension ContentView {
             }
         }
         
-        private func get24hPredicate() ->  NSPredicate{
-            let predicate = HKQuery.predicateForSamples(withStart: dateFrom, end: dateTo, options: [])
+        private func handleWorkoutsQueryResult(_ query: HKSampleQuery, _ results: [HKSample]?, _ error: (any Error)?) {
+            if let error {
+                print("readWorkouts error:", error)
+                return
+            }
             
-            return predicate
+            guard let workouts = results as? [HKWorkout] else {
+                print("readWorkouts: results cast failed or nil")
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.workouts = workouts
+            }
         }
     }
 }

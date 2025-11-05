@@ -16,8 +16,8 @@ struct ContentView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                DatePicker("Von", selection: $vm.dateFrom)
-                DatePicker("Bis", selection: $vm.dateTo)
+                DatePicker("Von", selection: vm.dateFromBinding)
+                DatePicker("Bis", selection: vm.dateToBinding)
                 
                 Button {
                     vm.requestHealthkitPermissions()
