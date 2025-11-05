@@ -17,15 +17,14 @@ extension ContentView {
         var data = [Point]()
         var minY = Int.max
         var maxY = Int.min
-        
         var dateFrom = Date()
         var dateTo = Date()
-        
-        // Neu: Speicher für Workouts
         var workouts: [HKWorkout] = []
         
         init() {
-            guard HKHealthStore.isHealthDataAvailable() else {  fatalError("This app requires a device that supports HealthKit") }
+            guard HKHealthStore.isHealthDataAvailable() else {
+                fatalError("This app requires a device that supports HealthKit")
+            }
             
             healthStore = HKHealthStore()
         }
@@ -143,9 +142,6 @@ extension ContentView {
         }
         
         private func get24hPredicate() ->  NSPredicate{
-    //        let startDate = Date(timeIntervalSince1970: TimeInterval(1762210800))
-    //        let endDate = Date(timeIntervalSince1970: TimeInterval(1762293600))
-            
             let predicate = HKQuery.predicateForSamples(withStart: dateFrom, end: dateTo, options: [])
             
             return predicate
