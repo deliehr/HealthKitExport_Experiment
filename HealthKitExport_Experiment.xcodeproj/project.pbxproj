@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B41316BA2EBB2FB2003DE979 /* DevTools in Frameworks */ = {isa = PBXBuildFile; productRef = B41316B92EBB2FB2003DE979 /* DevTools */; };
+		B41316C12EBB2FF2003DE979 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = B41316C02EBB2FF2003DE979 /* Algorithms */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		B413169C2EBB2EEA003DE979 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -35,16 +40,6 @@
 			path = HealthKitExport_Experiment;
 			sourceTree = "<group>";
 		};
-		B413169E2EBB2EEA003DE979 /* HealthKitExport_ExperimentTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = HealthKitExport_ExperimentTests;
-			sourceTree = "<group>";
-		};
-		B41316A82EBB2EEA003DE979 /* HealthKitExport_ExperimentUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = HealthKitExport_ExperimentUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +47,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B41316C12EBB2FF2003DE979 /* Algorithms in Frameworks */,
+				B41316BA2EBB2FB2003DE979 /* DevTools in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,8 +73,6 @@
 			isa = PBXGroup;
 			children = (
 				B413168E2EBB2EE9003DE979 /* HealthKitExport_Experiment */,
-				B413169E2EBB2EEA003DE979 /* HealthKitExport_ExperimentTests */,
-				B41316A82EBB2EEA003DE979 /* HealthKitExport_ExperimentUITests */,
 				B413168D2EBB2EE9003DE979 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,6 +107,8 @@
 			);
 			name = HealthKitExport_Experiment;
 			packageProductDependencies = (
+				B41316B92EBB2FB2003DE979 /* DevTools */,
+				B41316C02EBB2FF2003DE979 /* Algorithms */,
 			);
 			productName = HealthKitExport_Experiment;
 			productReference = B413168C2EBB2EE9003DE979 /* HealthKitExport_Experiment.app */;
@@ -129,9 +126,6 @@
 			);
 			dependencies = (
 				B413169D2EBB2EEA003DE979 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				B413169E2EBB2EEA003DE979 /* HealthKitExport_ExperimentTests */,
 			);
 			name = HealthKitExport_ExperimentTests;
 			packageProductDependencies = (
@@ -152,9 +146,6 @@
 			);
 			dependencies = (
 				B41316A72EBB2EEA003DE979 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				B41316A82EBB2EEA003DE979 /* HealthKitExport_ExperimentUITests */,
 			);
 			name = HealthKitExport_ExperimentUITests;
 			packageProductDependencies = (
@@ -195,6 +186,10 @@
 			);
 			mainGroup = B41316832EBB2EE9003DE979;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B41316B82EBB2FB2003DE979 /* XCRemoteSwiftPackageReference "SwiftDevTools" */,
+				B41316BF2EBB2FF2003DE979 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B413168D2EBB2EE9003DE979 /* Products */;
 			projectDirPath = "";
@@ -395,11 +390,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HealthKitExport_Experiment/HealthKitExport_Experiment.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8HM2FV529D;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "description health update usage";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -427,11 +424,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HealthKitExport_Experiment/HealthKitExport_Experiment.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8HM2FV529D;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "description health update usage";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -578,6 +577,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B41316B82EBB2FB2003DE979 /* XCRemoteSwiftPackageReference "SwiftDevTools" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/deliehr/SwiftDevTools";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.29;
+			};
+		};
+		B41316BF2EBB2FF2003DE979 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B41316B92EBB2FB2003DE979 /* DevTools */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B41316B82EBB2FB2003DE979 /* XCRemoteSwiftPackageReference "SwiftDevTools" */;
+			productName = DevTools;
+		};
+		B41316C02EBB2FF2003DE979 /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B41316BF2EBB2FF2003DE979 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B41316842EBB2EE9003DE979 /* Project object */;
 }
