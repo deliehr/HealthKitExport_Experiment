@@ -16,7 +16,7 @@ struct HealthKitExport_ExperimentApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
     }
 }
