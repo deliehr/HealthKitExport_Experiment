@@ -14,11 +14,22 @@ extension WorkoutsView {
         
         private var durationText: String {
             let interval = workout.endDate.timeIntervalSince(workout.startDate)
-            let formatter = DateComponentsFormatter()
-            formatter.allowedUnits = [.hour, .minute, .second]
-            formatter.unitsStyle = .positional
-            formatter.zeroFormattingBehavior = [.pad]
-            return formatter.string(from: interval) ?? "–"
+            guard interval >= 0 else { return "–" }
+            
+            // Auf die nächste volle Minute runden
+            let totalMinutesRounded = Int((interval / 60.0).rounded())
+            let hours = totalMinutesRounded / 60
+            let minutes = totalMinutesRounded % 60
+            
+            if hours > 0 {
+                if minutes > 0 {
+                    return "\(hours)h \(minutes)m"
+                } else {
+                    return "\(hours)h"
+                }
+            } else {
+                return "\(totalMinutesRounded)m"
+            }
         }
         
         private var distanceText: String {
@@ -33,43 +44,54 @@ extension WorkoutsView {
             return "\(kmString) km"
         }
         
-        var body: some View {
+        private var workoutName: String {
+            workout.isIndoor ? "\(workout.name) (Indoor)" : "\(workout.name) (Outdoor)"
+        }
+        
+        private var iconView: some View {
+            let image = switch workout.workoutActivityType {
+            case .walking: Image(systemName: "figure.walk.circle.fill")
+            case .cycling: workout.isOutdoor ? Image(systemName: "figure.outdoor.cycle.circle.fill") : Image(systemName: "figure.indoor.cycle.circle.fill")
+            case .coreTraining: Image(systemName: "figure.core.training.circle.fill")
+            default: Image(systemName: "figure.run.circle.fill")
+            }
+            
+            return image
+                .resizable()
+                .frame(width: 40, height: 40)
+        }
+    
+        private var workoutTypeView: some View {
+            VStack {
+                Text(workoutName)
+                
+                HStack {
+                    Text(durationText)
+                    
+                    if workout.isOutdoor {
+                        Text(distanceText)
+                    }
+                }
+            }
+        }
+        
+        private var dateView: some View {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "dd.MM.yyyy"
             let timeFormatter = DateFormatter()
-            timeFormatter.dateFormat = "HH:mm" // 24h-Format
+            timeFormatter.dateFormat = "HH:mm"
             
-            return HStack(alignment: .firstTextBaseline, spacing: 12) {
-                // Datum + Zeitspanne
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(dateFormatter.string(from: workout.startDate))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Text("\(timeFormatter.string(from: workout.startDate))–\(timeFormatter.string(from: workout.endDate))")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(minWidth: 130, alignment: .leading)
+            return Text("s")
+        }
+        
+        var body: some View {
+            HStack {
+                iconView
                 
-                // Workout-Name
-                Text(workout.name)
-                    .font(.headline)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+                workoutTypeView
                 
-                Spacer(minLength: 8)
-                
-                // Dauer
-                Text(durationText)
-                    .font(.body)
-                    .monospacedDigit()
-                
-                // Distanz
-                Text(distanceText)
-                    .font(.body)
-                    .monospacedDigit()
+                dateView
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }

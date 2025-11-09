@@ -12,6 +12,22 @@ import DevTools
 struct WorkoutsView: View {
     @State private var vm = ViewModel()
     
+    private var summaryView: some View {
+        Grid {
+            GridRow {
+                Text("A")
+                
+                Text("B")
+            }
+            
+            GridRow {
+                Text("C")
+                
+                Text("D")
+            }
+        }
+    }
+    
     var body: some View {
         Form {
             Section("Range") {
@@ -24,6 +40,8 @@ struct WorkoutsView: View {
             }
             
             if !vm.workouts.isEmpty {
+                summaryView
+                
                 Section("Workouts (\(vm.workouts.count))") {
                     ForEach(vm.workouts) { workout in
                         WorkoutRowView(workout: workout)
