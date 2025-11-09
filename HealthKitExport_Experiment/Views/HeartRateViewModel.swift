@@ -11,9 +11,7 @@ import DevTools
 
 extension HeartRateView {
     @Observable
-    class ViewModel {
-        private let healthStore = HealthKitService.shared.store
-        
+    class ViewModel: BaseViewModel {
         var heartRateData = [Point]()
         
         var minimum: Point? {
@@ -34,36 +32,7 @@ extension HeartRateView {
         
         var minY = Int.max
         var maxY = Int.min
-        var dateFrom = Date()
-        var dateTo = Date()
         
-        var dateFromBinding: Binding<Date> {
-            Binding<Date> {
-                UserDefaults.standard.object(forKey: "dateFrom") as? Date ?? Date()
-            } set: { newDate in
-                self.dateFrom = newDate
-                
-                UserDefaults.standard.set(newDate, forKey: "dateFrom")
-            }
-        }
-        
-        var dateToBinding: Binding<Date> {
-            Binding<Date> {
-                UserDefaults.standard.object(forKey: "dateTo") as? Date ?? Date()
-            } set: { newDate in
-                self.dateTo = newDate
-                
-                UserDefaults.standard.set(newDate, forKey: "dateTo")
-            }
-        }
-        
-        private var queryTimeRangePredicate: NSPredicate {
-            HKQuery.predicateForSamples(withStart: dateFrom, end: dateTo, options: [])
-        }
-        
-        init() {
-            dateFrom = UserDefaults.standard.object(forKey: "dateFrom") as? Date ?? Date()
-        }
         
         func readHeartRate() {
             let sampleType  = HKObjectType.quantityType(forIdentifier: .heartRate)!

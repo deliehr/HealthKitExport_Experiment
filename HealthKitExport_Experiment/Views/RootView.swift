@@ -11,15 +11,24 @@ struct RootView: View {
     var body: some View {
         TabView {
             Tab("Heart rate", systemImage: "bolt.heart.fill") {
-                HeartRateView()
+                NavigationStack {
+                    HeartRateView()
+                        .navigationTitle("Heart rate")
+                }
             }
             
             Tab("Workouts", systemImage: "figure.run.circle.fill") {
-                Text("B")
+                NavigationStack {
+                    WorkoutsView()
+                        .navigationTitle("Workouts")
+                }
             }
             
             Tab("Settings", systemImage: "gear.circle.fill") {
-                SettingsView()
+                NavigationStack {
+                    SettingsView()
+                        .navigationTitle("Settings")
+                }
             }
         }
     }

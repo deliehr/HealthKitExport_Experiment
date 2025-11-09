@@ -1,17 +1,15 @@
 //
-//  ContentView.swift
+//  WorkoutRowView.swift
 //  HealthKitExport_Experiment
 //
-//  Created by Dominik on 05.11.25.
+//  Created by Dominik on 09.11.25.
 //
 
 import SwiftUI
 import HealthKit
-import DevTools
-import Charts
 
-extension ContentView {
-    struct WorkoutRotView: View {
+extension WorkoutsView {
+    struct WorkoutRowView: View {
         let workout: HKWorkout
         
         private var durationText: String {
@@ -74,60 +72,4 @@ extension ContentView {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
-}
-
-struct ContentView: View {
-    @State private var vm = ViewModel()
-    
-    var body: some View {
-//        ScrollView {
-//            VStack(spacing: 16) {
-//                
-//                
-//               
-//                
-//                Button {
-//                    vm.readHeartRate()
-//                } label: {
-//                    Text("read heart rate")
-//                }
-//                
-//                Button {
-//                    vm.readWorkouts()
-//                } label: {
-//                    Text("read workouts")
-//                }
-//                
-//                Text("#Workouts: \(vm.workouts.count)")
-//                
-//                if !vm.workouts.isEmpty {
-//                    ForEach(vm.workouts) { elem in
-//                        WorkoutRotView(workout: elem)
-//                    }
-//                }
-//
-//                Chart(vm.data) { point in
-//                    LineMark(
-//                        x: .value("Uhrzeit", point.date),
-//                        y: .value("BPM", point.value)
-//                    )
-//                    .foregroundStyle(Color.yellow)
-//                }
-//                .chartXAxisLabel(alignment: .center) {
-//                    Text("Uhrzeit")
-//                }
-//                .chartYAxisLabel(position: .trailing) {
-//                    Text("BPM")
-//                }
-//                .chartYScale(domain: [vm.minY, vm.maxY])
-//                .frame(height: 200)
-//            }
-//            .padding()
-//        }
-        Text("y")
-    }
-}
-
-#Preview {
-    ContentView()
 }
