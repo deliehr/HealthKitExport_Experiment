@@ -16,13 +16,8 @@ struct HeartRateView: View {
     var body: some View {
         Form {
             Section("Range") {
-                // Direkt an die beobachteten Properties binden:
                 DatePicker("Von", selection: $vm.dateFrom)
                 DatePicker("Bis", selection: $vm.dateTo)
-                
-                // Alternativ (falls du die custom Bindings behalten möchtest):
-                // DatePicker("Von", selection: vm.dateFromBinding)
-                // DatePicker("Bis", selection: vm.dateToBinding)
                 
                 Button("Request") {
                     vm.readHeartRate()

@@ -16,7 +16,6 @@ extension WorkoutsView {
             let interval = workout.endDate.timeIntervalSince(workout.startDate)
             guard interval >= 0 else { return "–" }
             
-            // Auf die nächste volle Minute runden
             let totalMinutesRounded = Int((interval / 60.0).rounded())
             let hours = totalMinutesRounded / 60
             let minutes = totalMinutesRounded % 60

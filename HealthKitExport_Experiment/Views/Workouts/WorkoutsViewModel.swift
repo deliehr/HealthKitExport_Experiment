@@ -30,7 +30,7 @@ extension WorkoutsView {
             let totalSeconds = workouts.reduce(0.0) { partial, w in
                 max(0, w.endDate.timeIntervalSince(w.startDate)) + partial
             }
-            // Auf die nächste volle Minute runden wie in WorkoutRowView
+            
             let totalMinutesRounded = Int((totalSeconds / 60.0).rounded())
             let hours = totalMinutesRounded / 60
             let minutes = totalMinutesRounded % 60
@@ -46,17 +46,13 @@ extension WorkoutsView {
             }
         }
         
-        // Anzahl Workouts Indoor
         var indoorCount: Int {
             workouts.filter { $0.isIndoor }.count
         }
         
-        // Anzahl Workouts Outdoor
         var outdoorCount: Int {
             workouts.filter { $0.isOutdoor }.count
         }
-        
-        // MARK: - Queries
         
         func readWorkouts() {
             let sampleType = HKObjectType.workoutType()
