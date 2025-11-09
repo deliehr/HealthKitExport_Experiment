@@ -9,7 +9,9 @@
 import Foundation
 import HealthKit
 
-extension HKWorkoutActivityType {
+extension HKWorkoutActivityType: @retroactive Identifiable {
+    public var id: Self { self }
+    
     var name: String {
         switch self {
         case .americanFootball:             return "American Football"

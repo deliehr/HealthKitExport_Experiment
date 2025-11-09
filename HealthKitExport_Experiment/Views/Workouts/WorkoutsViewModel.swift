@@ -14,6 +14,11 @@ extension WorkoutsView {
     @Observable
     class ViewModel: BaseViewModel {
         var workouts: [HKWorkout] = []
+        var workoutTypes: [HKWorkoutActivityType] {
+            Array(_workoutTypes)
+        }
+        
+        private var _workoutTypes = Set<HKWorkoutActivityType>()
         
         var sumKilometersString: String {
             let metersSum = workouts.compactMap { $0.totalDistance?.doubleValue(for: .meter()) }.reduce(0, +)
@@ -79,6 +84,10 @@ extension WorkoutsView {
             }
 
             self.workouts = workouts
+            
+            workouts.forEach { workout in
+                _workoutTypes.insert(workout.workoutActivityType)
+            }
         }
     }
 }
