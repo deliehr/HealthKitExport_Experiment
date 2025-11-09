@@ -15,26 +15,48 @@ extension WorkoutsView {
     class ViewModel: BaseViewModel {
         var workouts: [HKWorkout] = []
         
-        var heartRateData = [Point]()
-        
-        var minimum: Point? {
-            heartRateData.min(by: { $0.value < $1.value })
+        var sumKilometersString: String {
+            let metersSum = workouts.compactMap { $0.totalDistance?.doubleValue(for: .meter()) }.reduce(0, +)
+            let km = metersSum / 1000.0
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            formatter.minimumFractionDigits = 2
+            formatter.maximumFractionDigits = 2
+            let kmString = formatter.string(from: NSNumber(value: km)) ?? String(format: "%.2f", km)
+            return "\(kmString) km"
         }
         
-        var maximum: Point? {
-            heartRateData.max(by: { $0.value < $1.value })
-        }
-        
-        var average: Double {
-            var sum = heartRateData.reduce(0.0) { partialResult, point in
-                partialResult + point.value
+        var sumDurationString: String {
+            let totalSeconds = workouts.reduce(0.0) { partial, w in
+                max(0, w.endDate.timeIntervalSince(w.startDate)) + partial
             }
+            // Auf die nächste volle Minute runden wie in WorkoutRowView
+            let totalMinutesRounded = Int((totalSeconds / 60.0).rounded())
+            let hours = totalMinutesRounded / 60
+            let minutes = totalMinutesRounded % 60
             
-            return sum / Double(heartRateData.count)
+            if hours > 0 {
+                if minutes > 0 {
+                    return "\(hours)h \(minutes)m"
+                } else {
+                    return "\(hours)h"
+                }
+            } else {
+                return "\(totalMinutesRounded)m"
+            }
         }
         
-        var minY = Int.max
-        var maxY = Int.min
+        // Anzahl Workouts Indoor
+        var indoorCount: Int {
+            workouts.filter { $0.isIndoor }.count
+        }
+        
+        // Anzahl Workouts Outdoor
+        var outdoorCount: Int {
+            workouts.filter { $0.isOutdoor }.count
+        }
+        
+        // MARK: - Queries
         
         func readWorkouts() {
             let sampleType = HKObjectType.workoutType()
