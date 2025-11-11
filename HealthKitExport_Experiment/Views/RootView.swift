@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct RootView: View {
+    @State private var healthKitService = HealthKitService()
+    
     var body: some View {
         TabView {
             Tab("Heart rate", systemImage: "bolt.heart.fill") {
@@ -31,6 +33,7 @@ struct RootView: View {
                 }
             }
         }
+        .environment(healthKitService)
     }
 }
 

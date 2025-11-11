@@ -12,13 +12,45 @@ import SwiftUI
 
 extension WorkoutsView {
     @Observable
-    class ViewModel: BaseViewModel {
-        var workouts: [HKWorkout] = []
+    class ViewModel {
+        var workouts = [HKWorkout]()
+        
         var workoutTypes: [HKWorkoutActivityType] {
             Array(_workoutTypes)
         }
         
         private var _workoutTypes = Set<HKWorkoutActivityType>()
+        
+        var dateFrom = Date()
+        var dateTo = Date()
+
+        var dateFromBinding: Binding<Date> {
+            Binding<Date> {
+                UserDefaults.standard.object(forKey: "dateFrom") as? Date ?? Date()
+            } set: { newDate in
+                self.dateFrom = newDate
+                
+                UserDefaults.standard.set(newDate, forKey: "dateFrom")
+            }
+        }
+
+        var dateToBinding: Binding<Date> {
+            Binding<Date> {
+                UserDefaults.standard.object(forKey: "dateTo") as? Date ?? Date()
+            } set: { newDate in
+                self.dateTo = newDate
+                
+                UserDefaults.standard.set(newDate, forKey: "dateTo")
+            }
+        }
+
+        init() {
+            dateFrom = UserDefaults.standard.object(forKey: "dateFrom") as? Date ?? Date()
+        }
+        
+        func set(workouts: [HKWorkout]) {
+            self.workouts = workouts
+        }
         
         var sumKilometersString: String {
             let metersSum = workouts.compactMap { $0.totalDistance?.doubleValue(for: .meter()) }.reduce(0, +)
@@ -59,35 +91,6 @@ extension WorkoutsView {
             workouts.filter { $0.isOutdoor }.count
         }
         
-        func readWorkouts() {
-            let sampleType = HKObjectType.workoutType()
-            let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
-
-            let query = HKSampleQuery(sampleType: sampleType,
-                                      predicate: queryTimeRangePredicate,
-                                      limit: HKObjectQueryNoLimit,
-                                      sortDescriptors: [sortDescriptor],
-                                      resultsHandler: handleWorkoutsQueryResult(_:_:_:))
-
-            healthStore.execute(query)
-        }
         
-        private func handleWorkoutsQueryResult(_ query: HKSampleQuery, _ results: [HKSample]?, _ error: (any Error)?) {
-            if let error {
-                print("readWorkouts error:", error)
-                return
-            }
-
-            guard let workouts = results as? [HKWorkout] else {
-                print("readWorkouts: results cast failed or nil")
-                return
-            }
-
-            self.workouts = workouts
-            
-            workouts.forEach { workout in
-                _workoutTypes.insert(workout.workoutActivityType)
-            }
-        }
     }
 }

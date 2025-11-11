@@ -11,8 +11,31 @@ import DevTools
 
 extension HeartRateView {
     @Observable
-    class ViewModel: BaseViewModel {
+    class ViewModel {
         var heartRateData = [Point]()
+        
+        var dateFrom = Date()
+        var dateTo = Date()
+
+        var dateFromBinding: Binding<Date> {
+            Binding<Date> {
+                UserDefaults.standard.object(forKey: "dateFrom") as? Date ?? Date()
+            } set: { newDate in
+                self.dateFrom = newDate
+                
+                UserDefaults.standard.set(newDate, forKey: "dateFrom")
+            }
+        }
+
+        var dateToBinding: Binding<Date> {
+            Binding<Date> {
+                UserDefaults.standard.object(forKey: "dateTo") as? Date ?? Date()
+            } set: { newDate in
+                self.dateTo = newDate
+                
+                UserDefaults.standard.set(newDate, forKey: "dateTo")
+            }
+        }
         
         var minimum: Point? {
             heartRateData.min(by: { $0.value < $1.value })
@@ -33,31 +56,12 @@ extension HeartRateView {
         var minY = Int.max
         var maxY = Int.min
         
-        
-        func readHeartRate() {
-            let sampleType  = HKObjectType.quantityType(forIdentifier: .heartRate)!
-            let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
-            
-            let sampleQuery = HKSampleQuery.init(sampleType: sampleType,
-                                                 predicate: queryTimeRangePredicate,
-                                                 limit: HKObjectQueryNoLimit,
-                                                 sortDescriptors: [sortDescriptor],
-                                                 resultsHandler: handleHeartRateQueryResult(_:_:_:))
-            
-            self.healthStore.execute(sampleQuery)
+        init() {
+            dateFrom = UserDefaults.standard.object(forKey: "dateFrom") as? Date ?? Date()
         }
         
-        private func handleHeartRateQueryResult(_ query: HKSampleQuery, _ results: [HKSample]?, _ error: (any Error)?) {
-            guard let samples = results as? [HKQuantitySample] else {
-                print(error!)
-                return
-            }
-            
+        func set(heartRateSamples samples: [HKQuantitySample]) {
             var newData = [Point]()
-            
-            var productTypes = Set<String>()
-            var productTypesNames = Set<String>()
-            var sources = Set<HKSourceRevision>()
             
             for (i,sample) in samples.reversed().enumerated() {
     //            let mSample = sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
@@ -74,17 +78,8 @@ extension HeartRateView {
                 let meta = sample.metadata
                 let source = sample.sourceRevision
                 
-                if let productType = source.productType {
-                    productTypes.insert(productType)
-                }
-                
-                productTypesNames.insert(source.source.name)
-                sources.insert(source)
-                
                 newData.append(Point(id: i, date: sample.startDate, value: value))
             }
-            
-            heartRateData.removeAll()
             
             let min = newData.min { p0, p1 in
                 p0.value < p1.value
@@ -97,9 +92,8 @@ extension HeartRateView {
             self.minY = Int(min?.value ?? 0.0)
             self.maxY = Int(max?.value ?? 200.0)
             
-            DispatchQueue.main.async {
-                self.heartRateData = newData
-            }
+            heartRateData.removeAll()
+            heartRateData = newData
         }
     }
 }

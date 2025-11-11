@@ -9,32 +9,28 @@ import SwiftUI
 import HealthKit
 
 struct SettingsView: View {
-    private let healthStore = HealthKitService.shared.store
+    @Environment(HealthKitService.self) private var healthKitService
     
     var body: some View {
         Form {
             Section("Permissions") {
-                Button {
-                    requestHealthkitPermissions()
-                } label: {
-                    Text("Request HealthKit Permissions")
+                if healthKitService.hasAllPermissions {
+                    Text("Alle Berechtigungen erteilt")
+                } else {
+                    Button {
+                        healthKitService.requestPermissions()
+                    } label: {
+                        Text("Request HealthKit Permissions")
+                    }
                 }
             }
         }
-    }
-    
-    private func requestHealthkitPermissions() {
-        let sampleTypesToRead = Set([
-            HKObjectType.quantityType(forIdentifier: .heartRate)!,
-            HKObjectType.quantityType(forIdentifier: .stepCount)!,
-            HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
-            HKObjectType.workoutType()
-        ])
-        
-        healthStore.requestAuthorization(toShare: nil, read: sampleTypesToRead) { (success, error) in
-            print("Request Authorization -- Success: ", success, " Error: ", error ?? "nil")
+        .onAppear {
+            print(healthKitService.permissionsBySampleType)
         }
     }
+    
+    
 }
 
 #Preview {

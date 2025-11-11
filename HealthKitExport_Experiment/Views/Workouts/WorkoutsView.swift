@@ -10,31 +10,41 @@ import HealthKit
 import DevTools
 
 struct WorkoutsView: View {
-    @State private var vm = ViewModel()
+    @Environment(HealthKitService.self) private var healthKitService
+    
+    @State private var viewModel = ViewModel()
     
     var body: some View {
         Form {
             Section("Range") {
-                DatePicker("Von", selection: $vm.dateFrom)
-                DatePicker("Bis", selection: $vm.dateTo)
+                DatePicker("Von", selection: $viewModel.dateFrom)
+                DatePicker("Bis", selection: $viewModel.dateTo)
                 
                 Button("Request") {
-                    vm.readWorkouts()
+                    fetchWorkouts()
                 }
             }
             
-            if !vm.workouts.isEmpty {
+            if !viewModel.workouts.isEmpty {
                 Section("Summary") {
                     SummaryView()
-                        .environment(vm)
+                        .environment(viewModel)
                 }
                 
-                Section("Workouts (\(vm.workouts.count))") {
-                    ForEach(vm.workouts) { workout in
+                Section("Workouts (\(viewModel.workouts.count))") {
+                    ForEach(viewModel.workouts) { workout in
                         WorkoutRowView(workout: workout)
                     }
                 }
             }
+        }
+    }
+    
+    private func fetchWorkouts() {
+        Task {
+            let workouts = try await healthKitService.readWorkouts(start: viewModel.dateFrom, end: viewModel.dateTo)
+            
+            viewModel.set(workouts: workouts)
         }
     }
 }
