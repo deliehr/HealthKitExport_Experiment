@@ -19,12 +19,12 @@ class HealthKitService {
     
     private let healthStore: HKHealthStore
     
-    let appSampleTypes: Set<HKSampleType>
+    let appReadSampleTypes: Set<HKSampleType>
     
     var hasAllPermissions: Bool {
         guard HKHealthStore.isHealthDataAvailable() else { return false }
         
-        for type in appSampleTypes {
+        for type in appReadSampleTypes {
             let status = healthStore.authorizationStatus(for: type)
             
             if status != .sharingAuthorized {
@@ -37,12 +37,12 @@ class HealthKitService {
     
     var permissionsBySampleType: [HKSampleType: Bool] {
         guard HKHealthStore.isHealthDataAvailable() else {
-            return Dictionary(uniqueKeysWithValues: appSampleTypes.map { ($0, false) })
+            return Dictionary(uniqueKeysWithValues: appReadSampleTypes.map { ($0, false) })
         }
         
         var result: [HKSampleType: Bool] = [:]
         
-        for type in appSampleTypes {
+        for type in appReadSampleTypes {
             let status = healthStore.authorizationStatus(for: type)
             result[type] = (status == .sharingAuthorized)
         }
@@ -60,7 +60,7 @@ class HealthKitService {
         
         healthStore = HKHealthStore()
         
-        appSampleTypes = Set([
+        appReadSampleTypes = Set([
             HKObjectType.quantityType(forIdentifier: .heartRate)!,
             HKObjectType.quantityType(forIdentifier: .stepCount)!,
             HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
@@ -68,10 +68,8 @@ class HealthKitService {
         ])
     }
     
-    func requestPermissions() {
-        healthStore.requestAuthorization(toShare: nil, read: appSampleTypes) { (success, error) in
-            print("Request Authorization -- Success: ", success, " Error: ", error ?? "nil")
-        }
+    func requestPermissions() async throws {
+        try await healthStore.requestAuthorization(toShare: [], read: appReadSampleTypes)
     }
     
     func readHeartRate(start: Date, end: Date) async throws -> [HKQuantitySample] {
