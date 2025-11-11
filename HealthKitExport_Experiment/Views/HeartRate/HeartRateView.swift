@@ -18,8 +18,8 @@ struct HeartRateView: View {
     var body: some View {
         Form {
             Section("Range") {
-                DatePicker("Von", selection: $viewModel.dateFrom)
-                DatePicker("Bis", selection: $viewModel.dateTo)
+                DatePicker("Von", selection: viewModel.dateFromBinding)
+                DatePicker("Bis", selection: viewModel.dateToBinding)
                 
                 Button("Request") {
                     fetchHeartRateData()

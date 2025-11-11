@@ -14,8 +14,8 @@ extension HeartRateView {
     class ViewModel {
         var heartRateData = [Point]()
         
-        var dateFrom = Date()
-        var dateTo = Date()
+        public private(set) var dateFrom = Date()
+        public private(set) var dateTo = Date()
 
         var dateFromBinding: Binding<Date> {
             Binding<Date> {
