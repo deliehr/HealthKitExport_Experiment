@@ -19,7 +19,6 @@ class HealthKitService {
     
     private let healthStore: HKHealthStore
     
-    var store: HKHealthStore { healthStore }
     let appSampleTypes: Set<HKSampleType>
     
     var hasAllPermissions: Bool {
@@ -32,6 +31,7 @@ class HealthKitService {
                 return false
             }
         }
+        
         return true
     }
     
