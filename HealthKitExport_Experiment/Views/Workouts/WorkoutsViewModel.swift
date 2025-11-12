@@ -14,16 +14,17 @@ extension WorkoutsView {
     @Observable
     class ViewModel {
         var workouts = [HKWorkout]()
+        var dateFrom = Date()
+        var dateTo = Date()
+        var requestHkError: HKError?
+        var requstError: Error?
+        
+        private var _workoutTypes = Set<HKWorkoutActivityType>()
         
         var workoutTypes: [HKWorkoutActivityType] {
             Array(_workoutTypes)
         }
         
-        private var _workoutTypes = Set<HKWorkoutActivityType>()
-        
-        var dateFrom = Date()
-        var dateTo = Date()
-
         var dateFromBinding: Binding<Date> {
             Binding<Date> {
                 UserDefaults.standard.object(forKey: "dateFrom") as? Date ?? Date()

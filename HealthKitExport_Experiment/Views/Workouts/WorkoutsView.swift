@@ -23,6 +23,14 @@ struct WorkoutsView: View {
                 Button("Request") {
                     fetchWorkouts()
                 }
+                
+                if let hkError = viewModel.requestHkError {
+                    Text("Error: \(hkError.localizedDescription)")
+                }
+                
+                if let error = viewModel.requstError {
+                    Text("Error: \(error.localizedDescription)")
+                }
             }
             
             if !viewModel.workouts.isEmpty {
@@ -41,10 +49,21 @@ struct WorkoutsView: View {
     }
     
     private func fetchWorkouts() {
+        viewModel.requestHkError = nil
+        viewModel.requstError = nil
+        
         Task {
-            let workouts = try await healthKitService.readWorkouts(start: viewModel.dateFrom, end: viewModel.dateTo)
-            
-            viewModel.set(workouts: workouts)
+            do {
+                let workouts = try await healthKitService.readWorkouts(start: viewModel.dateFrom, end: viewModel.dateTo)
+                
+                viewModel.set(workouts: workouts)
+            } catch {
+                if let hkError = error as? HKError {
+                    viewModel.requestHkError = hkError
+                } else {
+                    viewModel.requstError = error
+                }
+            }
         }
     }
 }
