@@ -46,7 +46,8 @@ extension WorkoutsView {
         }
 
         init() {
-            dateFrom = UserDefaults.standard.object(forKey: "dateFrom") as? Date ?? Date()
+            dateFrom = UserDefaults.standard.object(forKey: "woDateFrom") as? Date ?? Date()
+            dateTo = UserDefaults.standard.object(forKey: "woDateTo") as? Date ?? Date()
         }
         
         func set(workouts: [HKWorkout]) {

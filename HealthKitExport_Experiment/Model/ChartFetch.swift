@@ -9,7 +9,13 @@ import Foundation
 import SwiftUI
 
 extension HeartRateView {
-    struct ChartFetch: Identifiable {
+    struct ChartFetchRequest: Equatable {
+        let id: Int
+        let dateFrom: Date
+        let dateTo: Date
+    }
+    
+    struct ChartFetch: Identifiable, Equatable {
         let id: Int
         let dateFrom: Date
         let dateTo: Date
@@ -30,11 +36,17 @@ extension HeartRateView {
         }
         
         var average: Double {
-            var sum = points.reduce(0.0) { partialResult, point in
+            guard !points.isEmpty else { return 0.0 }
+            
+            let sum = points.reduce(0.0) { partialResult, point in
                 partialResult + point.value
             }
             
             return sum / Double(points.count)
+        }
+        
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs.id == rhs.id
         }
     }
 }
