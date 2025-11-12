@@ -14,6 +14,9 @@ struct HeartRateView: View {
     @Environment(HealthKitService.self) private var healthKitService
     
     @State private var viewModel = ViewModel()
+    @State private var isFetching = false
+    @State private var chartFetches = [ChartFetch]()
+    @State private var fetchTask: Task<Void,Error>?
     
     var body: some View {
         Form {
@@ -21,48 +24,82 @@ struct HeartRateView: View {
                 DatePicker("Von", selection: viewModel.dateFromBinding)
                 DatePicker("Bis", selection: viewModel.dateToBinding)
                 
-                Button("Request") {
-                    fetchHeartRateData()
+                HStack {
+                    Button {
+                        fetchHeartRateData()
+                    } label: {
+                        Text("Fetch")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    
+                    if isFetching {
+                        ProgressView()
+                    }
+                }
+                
+                if !chartFetches.isEmpty {
+                    Button(role: .destructive) {
+                        chartFetches.removeAll()
+                    } label: {
+                        Text("Reset")
+                    }
                 }
             }
+            .disabled(isFetching)
             
-            if !viewModel.heartRateData.isEmpty {
-                Section("Chart (\(viewModel.heartRateData.count))") {
-                    Chart(viewModel.heartRateData) { point in
-                        LineMark(
-                            x: .value("Uhrzeit", point.date),
-                            y: .value("BPM", point.value)
-                        )
-                        .foregroundStyle(Color.yellow)
-                    }
-                    .chartXAxisLabel(alignment: .center) {
-                        Text("Uhrzeit")
-                    }
-                    .chartYAxisLabel(position: .trailing) {
-                        Text("BPM")
-                    }
-                    .chartYScale(domain: [viewModel.minY, viewModel.maxY])
-                    .frame(height: 200)
-                    
-                    if let minimum = viewModel.minimum {
-                        Text("Minimum: \(Int(minimum.value)), \(minimum.date.asString("dd.MM.yy HH:mm:ss"))")
-                    }
-                    
-                    if let maximum = viewModel.maximum {
-                        Text("Maximum: \(Int(maximum.value)), \(maximum.date.asString("dd.MM.yy HH:mm:ss"))")
-                    }
-                    
-                    Text("Average: \(Int(viewModel.average))")
-                }
+            ForEach(chartFetches) { chartFetch in
+                HeartRateChartSectionView(chartFetch: chartFetch)
             }
+        }
+        .onDisappear {
+            fetchTask?.cancel()
+            fetchTask = nil
         }
     }
     
     private func fetchHeartRateData() {
-        Task {
+        fetchTask?.cancel()
+        fetchTask = nil
+        
+        isFetching = true
+        
+        let dateFrom = viewModel.dateFrom
+        let dateTo = viewModel.dateTo
+        let index = chartFetches.count
+        
+        fetchTask = Task { [index, dateFrom, dateTo] in
+            defer { isFetching = false }
+            
+            let time0 = CACurrentMediaTime()
+            
             let samples = try await healthKitService.readHeartRate(start: viewModel.dateFrom, end: viewModel.dateTo)
             
-            viewModel.set(heartRateSamples: samples)
+            let points = [Point](samples)
+            
+            let minY = Int(floor(points.min(by: { $0.value < $1.value })?.value ?? 0.0))
+            let maxY = Int(ceil(points.max(by: { $0.value < $1.value })?.value ?? 0.0))
+            
+            let fetch = ChartFetch(id: index,
+                                   dateFrom: dateFrom,
+                                   dateTo: dateTo,
+                                   points: points,
+                                   minY: minY,
+                                   maxY: maxY)
+
+            
+            let time1 = CACurrentMediaTime()
+            
+            let diff = time1 - time0
+            
+            if diff < 0.3 {
+                let waitTime = (0.3 - diff) * 1000
+                
+                try? await Task.sleep(for: .milliseconds(waitTime))
+            }
+            
+            try Task.checkCancellation()
+            
+            self.chartFetches.append(fetch)
         }
     }
 }
