@@ -11,6 +11,7 @@ import HealthKit
 struct SettingsView: View {
     @Environment(HealthKitService.self) private var healthKitService
     
+    @State private var requestingPermission = false
     @State private var authorizationGranted: Bool?
     
     var body: some View {
@@ -26,6 +27,12 @@ struct SettingsView: View {
                             requestPermissions()
                         } label: {
                             Text("Request HealthKit Permissions")
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .disabled(requestingPermission)
+                        
+                        if requestingPermission {
+                            ProgressView()
                         }
                         
                         if let authorizationGranted {
@@ -37,11 +44,14 @@ struct SettingsView: View {
             }
         }
         .onAppear {
+            authorizationGranted = nil
+            
             print(healthKitService.permissionsBySampleType)
         }
     }
     
     private func requestPermissions() {
+        requestingPermission = true
         authorizationGranted = nil
         
         Task {
@@ -54,6 +64,8 @@ struct SettingsView: View {
                 
                 authorizationGranted = false
             }
+            
+            requestingPermission = false
         }
     }
 }

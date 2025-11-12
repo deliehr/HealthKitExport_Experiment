@@ -19,21 +19,21 @@ extension HeartRateView {
 
         var dateFromBinding: Binding<Date> {
             Binding<Date> {
-                UserDefaults.standard.object(forKey: "dateFrom") as? Date ?? Date()
+                UserDefaults.standard.object(forKey: "hrDateFrom") as? Date ?? Date()
             } set: { newDate in
                 self.dateFrom = newDate
                 
-                UserDefaults.standard.set(newDate, forKey: "dateFrom")
+                UserDefaults.standard.set(newDate, forKey: "hrDateFrom")
             }
         }
 
         var dateToBinding: Binding<Date> {
             Binding<Date> {
-                UserDefaults.standard.object(forKey: "dateTo") as? Date ?? Date()
+                UserDefaults.standard.object(forKey: "hrDateTo") as? Date ?? Date()
             } set: { newDate in
                 self.dateTo = newDate
                 
-                UserDefaults.standard.set(newDate, forKey: "dateTo")
+                UserDefaults.standard.set(newDate, forKey: "hrDateTo")
             }
         }
         
