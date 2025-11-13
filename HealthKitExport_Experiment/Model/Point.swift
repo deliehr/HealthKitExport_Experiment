@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Point: Identifiable {
+struct Point: Identifiable, Equatable, Hashable {
     let id: Int
     let date: Date
     let value: Double

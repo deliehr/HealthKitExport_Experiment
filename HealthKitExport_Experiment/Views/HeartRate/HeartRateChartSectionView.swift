@@ -12,9 +12,10 @@ import DevTools
 extension HeartRateView {
     struct HeartRateChartSectionView: View {
         let chartFetch: ChartFetch
+        let number: Int
         
         var body: some View {
-            Section("Chart \(chartFetch.id + 1) (\(chartFetch.count))") {
+            Section("Chart \(number) (\(chartFetch.count))") {
                 Chart(chartFetch.points) { point in
                     LineMark(
                         x: .value("Uhrzeit", point.date),

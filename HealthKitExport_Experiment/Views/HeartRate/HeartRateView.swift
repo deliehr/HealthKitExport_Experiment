@@ -49,15 +49,11 @@ struct HeartRateView: View {
             .disabled(isFetching)
             
             ForEach(fetches) { chartFetch in
-                HeartRateChartSectionView(chartFetch: chartFetch)
+                HeartRateChartSectionView(chartFetch: chartFetch, number: getChartFetchNumber(for: chartFetch))
             }
         }
         .task(id: requests) {
-            guard let lastRequest = requests.last else { return }
-            
-            if let lastFetch = fetches.last, lastRequest.id == lastFetch.id {
-                return
-            }
+            guard let lastRequest = requests.last, requests.count != fetches.count else { return }
             
             do {
                 try await fetchHeartRateData(by: lastRequest)
@@ -67,17 +63,20 @@ struct HeartRateView: View {
         }
     }
     
+    private func getChartFetchNumber(for fetch: ChartFetch) -> Int {
+        (fetches.firstIndex(of: fetch) ?? 0) + 1
+    }
+    
     private func reset() {
         requests.removeAll()
         fetches.removeAll()
     }
     
     private func addChartFetchRequest() {
-        let index = requests.count
         let dateFrom = dateFrom
         let dateTo = dateTo
         
-        requests.append(ChartFetchRequest(id: index, dateFrom: dateFrom, dateTo: dateTo))
+        requests.append(ChartFetchRequest(dateFrom: dateFrom, dateTo: dateTo))
     }
     
     private func fetchHeartRateData(by request: ChartFetchRequest) async throws {
@@ -96,8 +95,7 @@ struct HeartRateView: View {
         let minY = Int(floor(points.min(by: { $0.value < $1.value })?.value ?? 0.0))
         let maxY = Int(ceil(points.max(by: { $0.value < $1.value })?.value ?? 0.0))
         
-        let fetch = ChartFetch(id: request.id,
-                               dateFrom: request.dateFrom,
+        let fetch = ChartFetch(dateFrom: request.dateFrom,
                                dateTo: request.dateTo,
                                points: points,
                                minY: minY,
