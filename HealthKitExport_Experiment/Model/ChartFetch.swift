@@ -9,14 +9,9 @@ import Foundation
 import SwiftUI
 
 extension HeartRateView {
-    struct ChartFetchRequest: Equatable {
+    struct ChartFetch: Identifiable, Equatable, Hashable {
         let id: Int
-        let dateFrom: Date
-        let dateTo: Date
-    }
-    
-    struct ChartFetch: Identifiable, Equatable {
-        let id: Int
+        let created: Date = Date()
         let dateFrom: Date
         let dateTo: Date
         let points: [Point]
@@ -45,8 +40,41 @@ extension HeartRateView {
             return sum / Double(points.count)
         }
         
+        // hashable
+        
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+            hasher.combine(dateFrom)
+            hasher.combine(dateTo)
+            hasher.combine(created)
+        }
+        
+        // equatable
+        
         static func == (lhs: Self, rhs: Self) -> Bool {
-            lhs.id == rhs.id
+            return lhs.hashValue == rhs.hashValue
+        }
+    }
+    
+    struct ChartFetchRequest: Identifiable, Equatable, Hashable {
+        let id: Int
+        let created: Date = Date()
+        let dateFrom: Date
+        let dateTo: Date
+        
+        // hashable
+        
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+            hasher.combine(dateFrom)
+            hasher.combine(dateTo)
+            hasher.combine(created)
+        }
+        
+        // equatable
+        
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            return lhs.hashValue == rhs.hashValue
         }
     }
 }

@@ -81,7 +81,9 @@ struct HeartRateView: View {
     }
     
     private func fetchHeartRateData(by request: ChartFetchRequest) async throws {
-        defer { isFetching = false }
+        defer {
+            isFetching = false
+        }
         
         isFetching = true
         
@@ -112,7 +114,13 @@ struct HeartRateView: View {
             try? await Task.sleep(for: .milliseconds(waitTime))
         }
         
-        try Task.checkCancellation()
+        do {
+            try Task.checkCancellation()
+        } catch {
+            requests.removeLast()
+            
+            return
+        }
         
         self.fetches.append(fetch)
     }
