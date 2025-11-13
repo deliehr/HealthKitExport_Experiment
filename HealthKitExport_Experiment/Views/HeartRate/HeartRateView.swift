@@ -48,8 +48,8 @@ struct HeartRateView: View {
             }
             .disabled(isFetching)
             
-            ForEach(fetches) { chartFetch in
-                HeartRateChartSectionView(chartFetch: chartFetch, number: getChartFetchNumber(for: chartFetch))
+            ForEach(Array(fetches.enumerated()), id: \.element.id) { (index, chartFetch) in
+                HeartRateChartSectionView(chartFetch: chartFetch, number: index + 1)
             }
         }
         .task(id: requests) {
@@ -61,10 +61,6 @@ struct HeartRateView: View {
                 print(error.localizedDescription)
             }
         }
-    }
-    
-    private func getChartFetchNumber(for fetch: ChartFetch) -> Int {
-        (fetches.firstIndex(of: fetch) ?? 0) + 1
     }
     
     private func reset() {
