@@ -50,6 +50,13 @@ struct HeartRateView: View {
             
             ForEach(Array(fetches.enumerated()), id: \.element.id) { (index, chartFetch) in
                 HeartRateChartSectionView(chartFetch: chartFetch, number: index + 1)
+                    .swipeActions {
+                        Button(role: .destructive) {
+                            removeChart(at: index)
+                        } label: {
+                            Text("Delete")
+                        }
+                    }
             }
         }
         .task(id: requests) {
@@ -61,6 +68,11 @@ struct HeartRateView: View {
                 print(error.localizedDescription)
             }
         }
+    }
+    
+    private func removeChart(at index: Int) {
+        fetches.remove(at: index)
+        requests.remove(at: index)
     }
     
     private func reset() {
