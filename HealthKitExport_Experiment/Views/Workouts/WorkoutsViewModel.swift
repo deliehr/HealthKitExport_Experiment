@@ -25,31 +25,6 @@ extension WorkoutsView {
             Array(_workoutTypes)
         }
         
-        var dateFromBinding: Binding<Date> {
-            Binding<Date> {
-                UserDefaults.standard.object(forKey: "woDateFrom") as? Date ?? Date()
-            } set: { newDate in
-                self.dateFrom = newDate
-                
-                UserDefaults.standard.set(newDate, forKey: "woDateFrom")
-            }
-        }
-
-        var dateToBinding: Binding<Date> {
-            Binding<Date> {
-                UserDefaults.standard.object(forKey: "woDateTo") as? Date ?? Date()
-            } set: { newDate in
-                self.dateTo = newDate
-                
-                UserDefaults.standard.set(newDate, forKey: "woDateTo")
-            }
-        }
-
-        init() {
-            dateFrom = UserDefaults.standard.object(forKey: "woDateFrom") as? Date ?? Date()
-            dateTo = UserDefaults.standard.object(forKey: "woDateTo") as? Date ?? Date()
-        }
-        
         func set(workouts: [HKWorkout]) {
             self.workouts = workouts
         }

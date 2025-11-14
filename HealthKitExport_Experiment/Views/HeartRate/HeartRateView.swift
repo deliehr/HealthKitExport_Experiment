@@ -22,8 +22,8 @@ struct HeartRateView: View {
     var body: some View {
         Form {
             Section("Range") {
-                DatePicker("Von", selection: $dateFrom)
-                DatePicker("Bis", selection: $dateTo)
+                ResettableDatePicker(title: "Von", selection: $dateFrom)
+                ResettableDatePicker(title: "Bis", selection: $dateTo)
                 
                 HStack {
                     Button {

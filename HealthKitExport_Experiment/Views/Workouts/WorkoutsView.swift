@@ -17,8 +17,8 @@ struct WorkoutsView: View {
     var body: some View {
         Form {
             Section("Range") {
-                DatePicker("Von", selection: viewModel.dateFromBinding)
-                DatePicker("Bis", selection: viewModel.dateToBinding)
+                ResettableDatePicker(title: "Von", selection: $viewModel.dateFrom)
+                ResettableDatePicker(title: "Bis", selection: $viewModel.dateTo)
                 
                 Button("Request") {
                     fetchWorkouts()
