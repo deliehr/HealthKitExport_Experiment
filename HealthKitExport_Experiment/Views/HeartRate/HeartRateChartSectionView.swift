@@ -14,6 +14,17 @@ extension HeartRateView {
         let chartFetch: ChartFetch
         let number: Int
         
+        @Binding var jointYMinValue: Int?
+        @Binding var jointYMaxValue: Int?
+        
+        private var minY: Int {
+            jointYMinValue ?? chartFetch.minY
+        }
+        
+        private var maxY: Int {
+            jointYMaxValue ?? chartFetch.maxY
+        }
+        
         var body: some View {
             Section("Chart \(number) (\(chartFetch.count))") {
                 Chart(chartFetch.points) { point in
@@ -29,7 +40,7 @@ extension HeartRateView {
                 .chartYAxisLabel(position: .trailing) {
                     Text("BPM")
                 }
-                .chartYScale(domain: [chartFetch.minY, chartFetch.maxY])
+                .chartYScale(domain: [minY, maxY])
                 .frame(height: 200)
                 
                 if let minimum = chartFetch.minimum {

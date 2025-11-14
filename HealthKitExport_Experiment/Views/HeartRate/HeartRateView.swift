@@ -19,6 +19,9 @@ struct HeartRateView: View {
     @State private var requests = [ChartFetchRequest]()
     @State private var fetches = [ChartFetch]()
     
+    @State private var jointYMinValue: Int?
+    @State private var jointYMaxValue: Int?
+    
     var body: some View {
         Form {
             Section("Range") {
@@ -45,11 +48,26 @@ struct HeartRateView: View {
                         Text("Reset")
                     }
                 }
+                
+                if fetches.count >= 2 {
+                    if jointYMinValue == nil {
+                        Button("Y-Achsen angleichen") {
+                            calculateJointYMinMaxValues()
+                        }
+                    } else {
+                        Button("Y-Achsen Angleichung aufheben") {
+                            resetJointYMinMaxValues()
+                        }
+                    }
+                }
             }
             .disabled(isFetching)
             
             ForEach(Array(fetches.enumerated()), id: \.element.id) { (index, chartFetch) in
-                HeartRateChartSectionView(chartFetch: chartFetch, number: index + 1)
+                HeartRateChartSectionView(chartFetch: chartFetch,
+                                          number: index + 1,
+                                          jointYMinValue: $jointYMinValue,
+                                          jointYMaxValue: $jointYMaxValue)
                     .swipeActions {
                         Button(role: .destructive) {
                             removeChart(at: index)
@@ -68,6 +86,20 @@ struct HeartRateView: View {
                 print(error.localizedDescription)
             }
         }
+    }
+    
+    private func calculateJointYMinMaxValues() {
+        guard let min = fetches.min(by: { $0.minY < $1.minY })?.minY,
+              let max = fetches.max(by: { $0.maxY < $1.maxY })?.maxY
+        else { return }
+        
+        jointYMinValue = min
+        jointYMaxValue = max
+    }
+    
+    private func resetJointYMinMaxValues() {
+        jointYMinValue = nil
+        jointYMaxValue = nil
     }
     
     private func removeChart(at index: Int) {
