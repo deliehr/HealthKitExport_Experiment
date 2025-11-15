@@ -25,12 +25,8 @@ struct ResetButton: View {
             action()
         } label: {
             Text("Reset")
-                .font(.system(size: 14))
-                .foregroundStyle(foregroundStyle)
-                .padding(4)
-                .background(background)
-                .clipShape(.rect(cornerRadius: 4))
         }
+        .buttonStyle(AddCompareButtonStyle())
     }
 }
 

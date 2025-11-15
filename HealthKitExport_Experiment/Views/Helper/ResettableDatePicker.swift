@@ -13,6 +13,7 @@ struct ResettableDatePicker: View {
     @Binding var selection: Date
     
     @State private var initialDate = Date()
+    @State private var didSetInitialDate = false
     
     private var differetDateSelected: Bool {
         selection != initialDate
@@ -31,6 +32,10 @@ struct ResettableDatePicker: View {
             }
         }
         .onAppear {
+            guard !didSetInitialDate else { return }
+            
+            didSetInitialDate = true
+            
             selection = initialDate
         }
     }
