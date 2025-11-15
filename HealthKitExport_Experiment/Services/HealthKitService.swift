@@ -83,7 +83,7 @@ class HealthKitService {
     
     func readHeartRate(start: Date, end: Date) async throws -> [HKQuantitySample] {
 #if targetEnvironment(simulator)
-        return [HKQuantitySample].createMockData(start: start, end: end)
+        return MockDataService.shared.readHeartRates(start: start, end: end)
 #endif
         let sampleType  = HKObjectType.quantityType(forIdentifier: .heartRate)!
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
@@ -103,7 +103,7 @@ class HealthKitService {
     
     func readWorkouts(start: Date, end: Date) async throws -> [HKWorkout] {
 #if targetEnvironment(simulator)
-        return [HKWorkout].createMockData(start: start, end: end)
+        return MockDataService.shared.readWorkouts(start: start, end: end)
 #endif
         
         let sampleType = HKObjectType.workoutType()

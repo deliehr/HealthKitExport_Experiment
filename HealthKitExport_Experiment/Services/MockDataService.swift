@@ -1,5 +1,5 @@
 //
-//  Mockdata.swift
+//  MockDataService.swift
 //  HealthKitExport_Experiment
 //
 //  Created by Dominik on 15.11.25.
@@ -8,14 +8,19 @@
 import Foundation
 import HealthKit
 
-extension [HKQuantitySample] {
-    static func createMockData(start: Date, end: Date) -> [HKQuantitySample] {
-        guard start < end else { return [] }
+class MockDataService {
+    public static let shared = MockDataService()
+    
+    private lazy var heartRates: [HKQuantitySample] = {
+        let start = Date(timeIntervalSince1970: 1735686000) // 1.1.2025
+        let end = Date(timeIntervalSince1970: 1767221999) // 31.12.2025
+        
         let type = HKObjectType.quantityType(forIdentifier: .heartRate)!
         let unit = HKUnit.count().unitDivided(by: .minute())
         var result: [HKQuantitySample] = []
         let interval: TimeInterval = 300
         var t = start
+        
         while t < end {
             let bpm = Double(Int.random(in: 55...160))
             let quantity = HKQuantity(unit: unit, doubleValue: bpm)
@@ -23,17 +28,19 @@ extension [HKQuantitySample] {
             result.append(sample)
             t = t.addingTimeInterval(interval)
         }
+        
         return result.sorted { $0.startDate > $1.startDate }
-    }
-}
-
-extension [HKWorkout] {
-    static func createMockData(start: Date, end: Date) -> [HKWorkout] {
-        guard start < end else { return [] }
+    }()
+    
+    private lazy var workouts: [HKWorkout] = {
+        let start = Date(timeIntervalSince1970: 1735686000) // 1.1.2025
+        let end = Date(timeIntervalSince1970: 1767221999) // 31.12.2025
+        
         let activities: [HKWorkoutActivityType] = [.running, .walking, .cycling, .hiking]
         
         let total = Swift.min(5, Swift.max(1, Int((end.timeIntervalSince(start) / 86400.0).rounded())))
         var workouts: [HKWorkout] = []
+        
         for i in 0..<total {
             let fraction = Double(i + 1) / Double(total + 1)
             let wStart = start.addingTimeInterval(fraction * end.timeIntervalSince(start))
@@ -43,8 +50,24 @@ extension [HKWorkout] {
             let energy = HKQuantity(unit: .kilocalorie(), doubleValue: Double(Int.random(in: 180...700)))
             let distance = HKQuantity(unit: .meter(), doubleValue: Double(Int.random(in: 2000...12000)))
             let workout = HKWorkout(activityType: activity, start: wStart, end: wEnd, workoutEvents: nil, totalEnergyBurned: energy, totalDistance: distance, device: nil, metadata: nil)
+            
             workouts.append(workout)
         }
+        
         return workouts.sorted { $0.startDate > $1.startDate }
+    }()
+    
+    private init() {
+        print("")
+    }
+    
+    func readHeartRates(start: Date, end: Date) -> [HKQuantitySample] {
+        heartRates.filter { $0.startDate >= start && $0.startDate <= end }
+                  .sorted { $0.startDate > $1.startDate }
+    }
+    
+    func readWorkouts(start: Date, end: Date) -> [HKWorkout] {
+        workouts.filter { $0.startDate >= start && $0.startDate <= end }
+                .sorted { $0.startDate > $1.startDate }
     }
 }
