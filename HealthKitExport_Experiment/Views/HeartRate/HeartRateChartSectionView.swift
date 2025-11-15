@@ -35,7 +35,7 @@ extension HeartRateView {
         
         private var headerView: some View {
             HStack {
-                Text("Chart \(number) (\(chartFetch.count))")
+                Text("Chart \(number) (\(chartFetch.count) Datenpunkte)")
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
                 if chartHasData {
