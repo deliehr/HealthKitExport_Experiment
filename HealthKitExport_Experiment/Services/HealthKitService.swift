@@ -1,10 +1,3 @@
-//
-//  HealthKitService.swift
-//  HealthKitExport_Experiment
-//
-//  Created by Dominik on 08.11.25.
-//
-
 import Foundation
 import HealthKit
 import SwiftUI
@@ -22,6 +15,9 @@ class HealthKitService {
     let appReadSampleTypes: Set<HKSampleType>
     
     var hasAllPermissions: Bool {
+        #if targetEnvironment(simulator)
+        return true
+        #else
         guard HKHealthStore.isHealthDataAvailable() else { return false }
         
         for type in appReadSampleTypes {
@@ -33,9 +29,13 @@ class HealthKitService {
         }
         
         return true
+        #endif
     }
     
     var permissionsBySampleType: [HKSampleType: Bool] {
+        #if targetEnvironment(simulator)
+        return Dictionary(uniqueKeysWithValues: appReadSampleTypes.map { ($0, true) })
+        #else
         guard HKHealthStore.isHealthDataAvailable() else {
             return Dictionary(uniqueKeysWithValues: appReadSampleTypes.map { ($0, false) })
         }
@@ -48,15 +48,18 @@ class HealthKitService {
         }
         
         return result
+        #endif
     }
     
     private var heartRatesContinuation: HeartRatesContinuation?
     private var workoutsContinuation: WorkoutsContinuation?
     
     init() {
+        #if !targetEnvironment(simulator)
         guard HKHealthStore.isHealthDataAvailable() else {
             fatalError("This app requires a device that supports HealthKit")
         }
+        #endif
         
         healthStore = HKHealthStore()
         
@@ -69,10 +72,19 @@ class HealthKitService {
     }
     
     func requestPermissions() async throws {
+//        #if targetEnvironment(simulator)
+//        return
+//        #else
+//        try await healthStore.requestAuthorization(toShare: [], read: appReadSampleTypes)
+//        #endif
+        
         try await healthStore.requestAuthorization(toShare: [], read: appReadSampleTypes)
     }
     
     func readHeartRate(start: Date, end: Date) async throws -> [HKQuantitySample] {
+#if targetEnvironment(simulator)
+        return [HKQuantitySample].createMockData(start: start, end: end)
+#endif
         let sampleType  = HKObjectType.quantityType(forIdentifier: .heartRate)!
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
         
@@ -90,6 +102,10 @@ class HealthKitService {
     }
     
     func readWorkouts(start: Date, end: Date) async throws -> [HKWorkout] {
+#if targetEnvironment(simulator)
+        return [HKWorkout].createMockData(start: start, end: end)
+#endif
+        
         let sampleType = HKObjectType.workoutType()
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
         
