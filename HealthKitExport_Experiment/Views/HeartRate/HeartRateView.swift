@@ -18,64 +18,84 @@ struct HeartRateView: View {
     @State private var isFetching = false
     @State private var requests = [ChartFetchRequest]()
     @State private var fetches = [ChartFetch]()
+    @State private var compareFetches = Set<ChartFetch>()
     
     @State private var jointYMinValue: Int?
     @State private var jointYMaxValue: Int?
     
+    private var headerView: some View {
+        Section("Range") {
+            ResettableDatePicker(title: "Von", selection: $dateFrom)
+            ResettableDatePicker(title: "Bis", selection: $dateTo)
+            
+            HStack {
+                Button {
+                    addChartFetchRequest()
+                } label: {
+                    Text("Fetch")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                
+                if isFetching {
+                    ProgressView()
+                }
+            }
+            
+            if !fetches.isEmpty {
+                Button(role: .destructive) {
+                    reset()
+                } label: {
+                    Text("Reset")
+                }
+            }
+            
+            if fetches.count >= 2 {
+                if jointYMinValue == nil {
+                    Button("Y-Achsen angleichen") {
+                        calculateJointYMinMaxValues()
+                    }
+                } else {
+                    Button("Y-Achsen Angleichung aufheben") {
+                        resetJointYMinMaxValues()
+                    }
+                }
+            }
+        }
+        .disabled(isFetching)
+    }
+    
+    private var compareChartsView: some View {
+        let compareFetchesArray = Array(compareFetches)
+        
+        return HeartRateChartCompareSectionView(chartFetches: compareFetchesArray)
+    }
+    
+    private var chartsView: some View {
+        ForEach(Array(fetches.enumerated()), id: \.element.id) { (index, chartFetch) in
+            HeartRateChartSectionView(chartFetch: chartFetch,
+                                      number: index + 1,
+                                      jointYMinValue: $jointYMinValue,
+                                      jointYMaxValue: $jointYMaxValue,
+                                      compareFetches: $compareFetches)
+                .swipeActions {
+                    Button(role: .destructive) {
+                        removeChart(at: index)
+                    } label: {
+                        Text("Delete")
+                    }
+                }
+        }
+    }
+    
     var body: some View {
         Form {
-            Section("Range") {
-                ResettableDatePicker(title: "Von", selection: $dateFrom)
-                ResettableDatePicker(title: "Bis", selection: $dateTo)
-                
-                HStack {
-                    Button {
-                        addChartFetchRequest()
-                    } label: {
-                        Text("Fetch")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    
-                    if isFetching {
-                        ProgressView()
-                    }
-                }
-                
-                if !fetches.isEmpty {
-                    Button(role: .destructive) {
-                        reset()
-                    } label: {
-                        Text("Reset")
-                    }
-                }
-                
-                if fetches.count >= 2 {
-                    if jointYMinValue == nil {
-                        Button("Y-Achsen angleichen") {
-                            calculateJointYMinMaxValues()
-                        }
-                    } else {
-                        Button("Y-Achsen Angleichung aufheben") {
-                            resetJointYMinMaxValues()
-                        }
-                    }
-                }
-            }
-            .disabled(isFetching)
+            headerView
             
-            ForEach(Array(fetches.enumerated()), id: \.element.id) { (index, chartFetch) in
-                HeartRateChartSectionView(chartFetch: chartFetch,
-                                          number: index + 1,
-                                          jointYMinValue: $jointYMinValue,
-                                          jointYMaxValue: $jointYMaxValue)
-                    .swipeActions {
-                        Button(role: .destructive) {
-                            removeChart(at: index)
-                        } label: {
-                            Text("Delete")
-                        }
-                    }
+            if compareFetches.count >= 2 {
+                compareChartsView
             }
+            
+            chartsView
         }
         .task(id: requests) {
             guard let lastRequest = requests.last, requests.count != fetches.count else { return }

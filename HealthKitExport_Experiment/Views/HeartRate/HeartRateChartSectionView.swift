@@ -16,6 +16,7 @@ extension HeartRateView {
         
         @Binding var jointYMinValue: Int?
         @Binding var jointYMaxValue: Int?
+        @Binding var compareFetches: Set<ChartFetch>
         
         private var minY: Int {
             jointYMinValue ?? chartFetch.minY
@@ -40,7 +41,7 @@ extension HeartRateView {
                 
                 if chartHasData {
                     Button("+ Vergleich") {
-                        print("hey")
+                        compareFetches.insert(chartFetch)
                     }
                     .buttonStyle(AddCompareButtonStyle())
                 }
