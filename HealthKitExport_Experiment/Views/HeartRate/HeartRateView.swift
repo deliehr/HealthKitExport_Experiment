@@ -16,6 +16,8 @@ struct HeartRateView: View {
     @State private var dateFrom = Date()
     @State private var dateTo = Date()
     @State private var isFetching = false
+    @State private var isExporting = false
+    @State private var exportedFileURL: URL?
     @State private var requests = [ChartFetchRequest]()
     @State private var fetches = [ChartFetch]()
     @State private var compareFetches = Set<ChartFetch>()
@@ -36,9 +38,20 @@ struct HeartRateView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 
-                if isFetching {
+                Button {
+                    Task { await exportCSV() }
+                } label: {
+                    Text("CSV Export")
+                }
+                
+                if isFetching || isExporting {
                     ProgressView()
                 }
+            }
+            .buttonStyle(.borderless)
+            
+            if let exportedFileURL {
+                ShareLink(item: exportedFileURL)
             }
             
             if !fetches.isEmpty {
@@ -61,7 +74,7 @@ struct HeartRateView: View {
                 }
             }
         }
-        .disabled(isFetching)
+        .disabled(isFetching || isExporting)
     }
     
     private var compareChartsView: some View {
@@ -137,6 +150,32 @@ struct HeartRateView: View {
         let dateTo = dateTo
         
         requests.append(ChartFetchRequest(dateFrom: dateFrom, dateTo: dateTo))
+    }
+    
+    private func exportCSV() async {
+        defer {
+            isExporting = false
+        }
+        
+        isExporting = true
+        exportedFileURL = nil
+        
+        do {
+            let writer = try CSVExportService.HeartRateWriter(from: dateFrom, to: dateTo)
+            
+            do {
+                try await healthKitService.exportHeartRates(start: dateFrom, end: dateTo) { samples in
+                    try await writer.append(samples: samples)
+                }
+                
+                exportedFileURL = try await writer.finish()
+            } catch {
+                await writer.discard()
+                throw error
+            }
+        } catch {
+            print(error.localizedDescription)
+        }
     }
     
     private func fetchHeartRateData(by request: ChartFetchRequest) async throws {

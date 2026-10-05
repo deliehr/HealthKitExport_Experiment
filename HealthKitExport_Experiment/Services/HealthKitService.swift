@@ -101,6 +101,41 @@ class HealthKitService {
         }
     }
     
+    func exportHeartRates(start: Date,
+                          end: Date,
+                          batchSize: Int = 5_000,
+                          handler: ([HKQuantitySample]) async throws -> Void) async throws {
+#if targetEnvironment(simulator)
+        let samples = MockDataService.shared.readHeartRates(start: start, end: end)
+        
+        for batchStart in stride(from: 0, to: samples.count, by: batchSize) {
+            try await handler(Array(samples[batchStart..<min(batchStart + batchSize, samples.count)]))
+        }
+#else
+        let sampleType = HKObjectType.quantityType(forIdentifier: .heartRate)!
+        let predicate = HKSamplePredicate.quantitySample(type: sampleType,
+                                                         predicate: createPredicate(start: start, end: end))
+        var anchor: HKQueryAnchor?
+        
+        while true {
+            try Task.checkCancellation()
+            
+            let descriptor = HKAnchoredObjectQueryDescriptor(predicates: [predicate],
+                                                             anchor: anchor,
+                                                             limit: batchSize)
+            let result = try await descriptor.result(for: healthStore)
+            
+            guard !result.addedSamples.isEmpty else { return }
+            
+            try await handler(result.addedSamples)
+            
+            anchor = result.newAnchor
+            
+            if result.addedSamples.count < batchSize { return }
+        }
+#endif
+    }
+    
     func readWorkouts(start: Date, end: Date) async throws -> [HKWorkout] {
 #if targetEnvironment(simulator)
         return MockDataService.shared.readWorkouts(start: start, end: end)
